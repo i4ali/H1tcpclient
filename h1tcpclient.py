@@ -7,6 +7,7 @@ import errno
 import struct
 import binascii
 import json
+import time
 
 
 try:
@@ -83,19 +84,19 @@ class H1:
 			if len(self.buffer) < length:
 				print ("too short for data: buffer is"), len(self.buffer), "want", length
 				break
-			print ("message length"),length,"buffer",len(self.buffer)
+			#print ("message length"),length,"buffer",len(self.buffer)
 			m = self.buffer[4:length]
 			self.gotmessage(m)
 			# print "after got", len(self.buffer)
 			self.buffer = self.buffer[length:]
 
 	def gotmessage(self,message):
-		print ("Got Message:"),len(message)
+		#print ("Got Message:"),len(message)
 		if len(message) < 4:
 			print ("No Message header")
 			return
 		mtype = message[0]
-		print ("Got Message header: type"), mtype
+		#print ("Got Message header: type"), mtype
 		if mtype == 0:
 			print ("JSON:")
 			print (message[4:])
@@ -103,15 +104,16 @@ class H1:
 			print ("Binary, more:"), ord(message[1])
 			print (message[4:])
 		else:
-			print ("Unhandled message type")
+			#print ("Unhandled message type")
+			print "Response from H1:" + message
 
 	def send(self,message):
 		#if self.socket:
 		buffer = struct.pack(">i",len(message) + 4)
 		#print ("Hexsending %s %s %s") % (binascii.hexlify(buffer), binascii.hexlify(message[0:4]), message[4:])
-		print ("Len %d" % (len(message)))
-		print ("Buf %d" % (len(buffer)))
-		print (message)
+		#print ("Len %d" % (len(message)))
+		#print ("Buf %d" % (len(buffer)))
+		#print (message)
 		self.socket.send(buffer + message)
 			
 
@@ -574,8 +576,6 @@ class Main(tk.Frame):
 		self.getdir.pack(expand=True,fill='x')
 
 
-
-
 def main():
 	m = Main(root)
 	m.pack(expand=True,fill='both')
@@ -583,3 +583,6 @@ def main():
 
 if __name__ == "__main__":
 	main()
+
+
+
