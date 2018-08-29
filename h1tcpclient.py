@@ -31,7 +31,7 @@ class H1:
 
 	def connect(self,host,port):
 		if not self.socket:
-			print ("connect")
+			#print ("connect")
 			self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			try:
 				self.socket.connect((str(host), int(port)))
@@ -45,7 +45,7 @@ class H1:
 
 	def disconnect(self):
 		if self.socket:
-			print ("disconnect")
+			#print ("disconnect")
 			self.socket.close()
 			self.socket = None
 			self.buffer = ''
@@ -108,7 +108,7 @@ class H1:
 			self.message = message[4:]
 		else:
 			#print ("Unhandled message type")
-			print "Response from H1:" + message
+			#print "Response from H1:" + message
 			self.message = message
 
 	def send(self,message):
