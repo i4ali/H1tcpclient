@@ -27,6 +27,7 @@ class H1:
 		root.after(100,self.poll)
 		self.buffer = b''
 		self.host = "192.168.0.2"
+		self.message = ''
 
 	def connect(self,host,port):
 		if not self.socket:
@@ -100,12 +101,15 @@ class H1:
 		if mtype == 0:
 			print ("JSON:")
 			print (message[4:])
+			self.message = message[4:]
 		elif mtype == 1:
 			print ("Binary, more:"), ord(message[1])
 			print (message[4:])
+			self.message = message[4:]
 		else:
 			#print ("Unhandled message type")
 			print "Response from H1:" + message
+			self.message = message
 
 	def send(self,message):
 		#if self.socket:

@@ -1,7 +1,9 @@
 from h1tcpclient import H1
 import argparse
 import time
+import threading
 
+disconnect = False
 
 def add_delay_before(secs):
     def real_add_delay(func_to_decorate):
@@ -12,15 +14,12 @@ def add_delay_before(secs):
     return real_add_delay
 
 
-def connect(ip,port):
-    h1.connect(ip, port)
-
+@add_delay_before(2)
 def record_videos(camera, rec_length_secs, quantity):
     # loop for number of videos specified
     while quantity>0:
         # send record command for camera number
         h1.sendjson({"command":"record","camera":camera})
-
         # send stop command after time specified
         time.sleep(rec_length_secs)
         h1.sendjson({"command":"stoprecord","camera":camera})
@@ -30,6 +29,14 @@ def record_videos(camera, rec_length_secs, quantity):
 @add_delay_before(10)
 def upload_to_CC():
     h1.sendjson({"command":"upload", "icv":True})
+
+
+def print_data_from_H1():
+    global disconnect
+    while not disconnect:
+        h1.poll()
+        print(h1.message)
+        time.sleep(0.1)
 
 
 if __name__ == '__main__':
@@ -47,16 +54,31 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    
+    # a seperate thread to handle receiving data from H1
+    t = threading.Thread(target=get_data_from_H1, args=(,))
+
     # instantiate connection to H1
     h1 = H1()
-    connect(args.ip, args.port)
+    h1.connect(args.ip, args.port)
 
-    # record videos with camera, length and number of videos specified
+    # start the new thread
+    t.start()
+
+    # record videos with camera number, length and number of videos specified
     record_videos(args.camera, args.recordingtime, args.videos)
 
     # upload if specified  
     if args.upload:
         upload_to_CC()
+
+    # close connection when done
+    h1.disconnect()
+    
+    # set global disconnect true to stop new thread
+    global disconnect
+    disconnect = True
+    t.join()
     
 
    
